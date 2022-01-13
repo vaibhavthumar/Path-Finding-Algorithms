@@ -1,6 +1,7 @@
 import pygame
 from Spot import Spot
 from AStar import AStarAlgorithm
+from button import Button
 
 HEIGHT = 700
 WIDTH = 900
@@ -17,6 +18,8 @@ PURPLE = (128, 0, 128)
 ORANGE = (255, 165, 0)
 GREY = (128, 128, 128)
 TURQUOISE = (64, 224, 208)
+
+start_img = pygame.image.load('Images/a.png').convert_alpha()
 
 def construct_path(came_from, current, draw):
     while current in came_from:
@@ -43,9 +46,12 @@ def draw_grid(win, rows, HEIGHT):
         for j in range(rows):
             pygame.draw.line(win, GREY, (j * gap, 0), (j * gap, HEIGHT))
 
-def draw(win, grid, rows, HEIGHT):
+def draw(win, grid, rows, HEIGHT, buttons):
     win.fill(WHITE)
 
+    for button in buttons:
+        button.draw(win)
+        
     for row in grid:
         for spot in row:
             spot.draw(win)
@@ -64,6 +70,7 @@ def get_click_pos(pos, rows, HEIGHT):
 def visualizer(win, HEIGHT):
     ROWS = 50
     grid = make_grid(ROWS, HEIGHT)
+    buttons = []
 
     start = None
     end = None
@@ -71,8 +78,11 @@ def visualizer(win, HEIGHT):
     run = True
     started = False
 
+    start_button = Button(750, 100, start_img, 0.1)
+    buttons.append(start_button)
+
     while run:
-        draw(win, grid, ROWS, HEIGHT)
+        draw(win, grid, ROWS, HEIGHT, buttons)
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -83,19 +93,23 @@ def visualizer(win, HEIGHT):
 
             if pygame.mouse.get_pressed()[0]: # Left
                 pos = pygame.mouse.get_pos()
-                row, col = get_click_pos(pos, ROWS, HEIGHT)
-                if row != 0 and col != 0 and row != ROWS - 1 and col != ROWS - 1 and row < ROWS and col < ROWS:
-                    spot = grid[row][col]
-                    if not start:
-                        start = spot
-                        start.make_start()
 
-                    if not end and spot != start:
-                        end = spot
-                        end.make_end()
+                if start_button.is_clicked(pos):
+                    print("Button clicked")
+                else:
+                    row, col = get_click_pos(pos, ROWS, HEIGHT)
+                    if row != 0 and col != 0 and row != ROWS - 1 and col != ROWS - 1 and row < ROWS and col < ROWS:
+                        spot = grid[row][col]
+                        if not start:
+                            start = spot
+                            start.make_start()
 
-                    elif spot != start and spot != end:
-                        spot.make_barrier()
+                        if not end and spot != start:
+                            end = spot
+                            end.make_end()
+
+                        elif spot != start and spot != end:
+                            spot.make_barrier()
 
             elif pygame.mouse.get_pressed()[2]: # Right
                 pos = pygame.mouse.get_pos()
@@ -115,7 +129,7 @@ def visualizer(win, HEIGHT):
                         for spot in row:
                             spot.update_neighbors(grid)
 
-                    AStarAlgorithm(lambda: draw(win, grid, ROWS, HEIGHT), construct_path, grid, start, end)
+                    AStarAlgorithm(lambda: draw(win, grid, ROWS, HEIGHT, buttons), construct_path, grid, start, end)
                     started = False
                 
                 if event.key == pygame.K_c:
@@ -123,6 +137,8 @@ def visualizer(win, HEIGHT):
                     end = None
                     grid = make_grid(ROWS, HEIGHT)
 
+        pygame.display.update()
+            
     pygame.quit()
 
 if __name__ == '__main__':
