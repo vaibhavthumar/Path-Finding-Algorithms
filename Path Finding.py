@@ -2,6 +2,7 @@ import pygame
 from Spot import Spot
 from AStar import AStarAlgorithm
 from DFS import DFSAlgorithm
+from BFS import BFSAlgorithm
 from button import Button
 
 HEIGHT = 700
@@ -84,9 +85,11 @@ def visualizer(win, HEIGHT):
 
     astar_button = Button(750, 100, image=astar_img)
     dfs_button = Button(750, 150, image=dfs_img)
+    bfs_button = Button(750, 200, image=astar_img)
     # astar_button = Button(750, 100, width=100, height=30, color=CADETBLUE)
     buttons.append(astar_button)
     buttons.append(dfs_button)
+    buttons.append(bfs_button)
 
     while run:
         draw(win, grid, ROWS, HEIGHT, buttons)
@@ -104,6 +107,8 @@ def visualizer(win, HEIGHT):
                     algorithm = AStarAlgorithm
                 elif dfs_button.is_clicked(pos):
                     algorithm = DFSAlgorithm
+                elif bfs_button.is_clicked(pos):
+                    algorithm = BFSAlgorithm
                 else:
                     row, col = get_click_pos(pos, ROWS, HEIGHT)
                     if row != 0 and col != 0 and row != ROWS - 1 and col != ROWS - 1 and row < ROWS and col < ROWS:
