@@ -1,6 +1,7 @@
 import pygame
 from Spot import Spot
 from AStar import AStarAlgorithm
+from DFS import DFSAlgorithm
 from button import Button
 
 HEIGHT = 700
@@ -21,6 +22,7 @@ TURQUOISE = pygame.Color('turquoise')
 SLATEGRAY1 = pygame.Color('slategray1')
 
 astar_img = pygame.image.load('Images/Astar.jpg').convert_alpha()
+dfs_img = pygame.image.load('Images/DFS.jpg').convert_alpha()
 
 def construct_path(came_from, current, draw):
     while current in came_from:
@@ -81,8 +83,10 @@ def visualizer(win, HEIGHT):
     started = False
 
     astar_button = Button(750, 100, image=astar_img)
+    dfs_button = Button(750, 150, image=dfs_img)
     # astar_button = Button(750, 100, width=100, height=30, color=CADETBLUE)
     buttons.append(astar_button)
+    buttons.append(dfs_button)
 
     while run:
         draw(win, grid, ROWS, HEIGHT, buttons)
@@ -98,6 +102,8 @@ def visualizer(win, HEIGHT):
 
                 if astar_button.is_clicked(pos):
                     algorithm = AStarAlgorithm
+                elif dfs_button.is_clicked(pos):
+                    algorithm = DFSAlgorithm
                 else:
                     row, col = get_click_pos(pos, ROWS, HEIGHT)
                     if row != 0 and col != 0 and row != ROWS - 1 and col != ROWS - 1 and row < ROWS and col < ROWS:
