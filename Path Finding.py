@@ -8,18 +8,19 @@ WIDTH = 900
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Path Finding Algorithm")
 
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
-YELLOW = (255, 255, 0)
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-PURPLE = (128, 0, 128)
-ORANGE = (255, 165, 0)
-GREY = (128, 128, 128)
-TURQUOISE = (64, 224, 208)
+RED = pygame.Color('red')
+GREEN = pygame.Color('green')
+BLUE = pygame.Color('blue')
+YELLOW = pygame.Color('yellow')
+WHITE = pygame.Color('white')
+BLACK = pygame.Color('black')
+PURPLE = pygame.Color('purple')
+ORANGE = pygame.Color('orange')
+GREY = pygame.Color('grey')
+TURQUOISE = pygame.Color('turquoise')
+SLATEGRAY1 = pygame.Color('slategray1')
 
-start_img = pygame.image.load('Images/a.png').convert_alpha()
+astar_img = pygame.image.load('Images/Astar.jpg').convert_alpha()
 
 def construct_path(came_from, current, draw):
     while current in came_from:
@@ -47,7 +48,7 @@ def draw_grid(win, rows, HEIGHT):
             pygame.draw.line(win, GREY, (j * gap, 0), (j * gap, HEIGHT))
 
 def draw(win, grid, rows, HEIGHT, buttons):
-    win.fill(WHITE)
+    win.fill(SLATEGRAY1)
 
     for button in buttons:
         button.draw(win)
@@ -74,16 +75,17 @@ def visualizer(win, HEIGHT):
 
     start = None
     end = None
+    algorithm = None
 
     run = True
     started = False
 
-    start_button = Button(750, 100, start_img, 0.1)
-    buttons.append(start_button)
+    astar_button = Button(750, 100, image=astar_img)
+    # astar_button = Button(750, 100, width=100, height=30, color=CADETBLUE)
+    buttons.append(astar_button)
 
     while run:
         draw(win, grid, ROWS, HEIGHT, buttons)
-        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -94,8 +96,8 @@ def visualizer(win, HEIGHT):
             if pygame.mouse.get_pressed()[0]: # Left
                 pos = pygame.mouse.get_pos()
 
-                if start_button.is_clicked(pos):
-                    print("Button clicked")
+                if astar_button.is_clicked(pos):
+                    algorithm = AStarAlgorithm
                 else:
                     row, col = get_click_pos(pos, ROWS, HEIGHT)
                     if row != 0 and col != 0 and row != ROWS - 1 and col != ROWS - 1 and row < ROWS and col < ROWS:
@@ -123,18 +125,19 @@ def visualizer(win, HEIGHT):
                     spot.reset()
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and start and end and not started:
+                if event.key == pygame.K_SPACE and start and end and not started and algorithm:
                     started = True
                     for row in grid:
                         for spot in row:
                             spot.update_neighbors(grid)
 
-                    AStarAlgorithm(lambda: draw(win, grid, ROWS, HEIGHT, buttons), construct_path, grid, start, end)
+                    algorithm(lambda: draw(win, grid, ROWS, HEIGHT, buttons), construct_path, grid, start, end)
                     started = False
                 
                 if event.key == pygame.K_c:
                     start = None
                     end = None
+                    algorithm = None
                     grid = make_grid(ROWS, HEIGHT)
 
         pygame.display.update()
