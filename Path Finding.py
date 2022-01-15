@@ -150,12 +150,12 @@ def visualizer(win, HEIGHT):
                 elif dijkstra_button.is_clicked(pos):
                     algorithm = DijkstraAlgorithm
                     button_selector(dijkstra_button, buttons)
-                elif generate_button.is_clicked(pos):
+                elif generate_button.is_clicked(pos) and int(user_text) > 9:
                     ROWS = int(user_text)
                 elif input_rect.collidepoint(pos):
-                    # if len(user_text) < 4: 
                     text_active = True
                 else:
+                    text_active = False
                     row, col = get_click_pos(pos, ROWS, HEIGHT)
                     if row != 0 and col != 0 and row != ROWS - 1 and col != ROWS - 1 and row < ROWS and col < ROWS:
                         spot = grid[row][col]
@@ -201,15 +201,21 @@ def visualizer(win, HEIGHT):
                     if event.key == pygame.K_BACKSPACE:
                         user_text = user_text[:-1]
                     elif event.key in numbers:
-                        user_text += event.unicode
-                        print(int(user_text) == 4)
-                        if int(user_text) < 2 and int(user_text) > 100:
+                        if int(user_text) == 0:
+                            user_text = event.unicode
+                        else:
+                            user_text += event.unicode
+                        if int(user_text) > 50:
                             text_active = False
                 
-                if user_text == '' or int(user_text) < 2:
-                    user_text = str(2)
-                if int(user_text) > 100:
-                    user_text = str(100)
+                if user_text == '':
+                    user_text = str(0)
+            
+            if not text_active:
+                if int(user_text) < 10:
+                    user_text = str(10)
+                if int(user_text) > 50:
+                    user_text = str(50)
 
         pygame.display.update()
             
