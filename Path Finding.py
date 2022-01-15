@@ -9,7 +9,7 @@ from button import Button
 HEIGHT = 700
 WIDTH = 900
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Path Finding Algorithm")
+pygame.display.set_caption("Path Finding Algorithm Visualiser")
 
 RED = pygame.Color('red')
 GREEN = pygame.Color('green')
@@ -53,7 +53,7 @@ def draw_grid(win, rows, HEIGHT):
         for j in range(rows):
             pygame.draw.line(win, GREY, (j * gap, 0), (j * gap, HEIGHT))
 
-def draw(win, grid, rows, HEIGHT, buttons):
+def draw(win, grid, rows, HEIGHT, buttons, input_rect, user_text, base_font):
     win.fill(SLATEGRAY1)
 
     for button in buttons:
@@ -64,6 +64,11 @@ def draw(win, grid, rows, HEIGHT, buttons):
             spot.draw(win)
 
     draw_grid(win, rows, HEIGHT)
+    
+    pygame.draw.rect(win, WHITE, input_rect)
+    text_surface = base_font.render(user_text, True, BLACK)
+    win.blit(text_surface, (input_rect.x + 5, input_rect.y + 10))
+
     pygame.display.update()
 
 def get_click_pos(pos, rows, HEIGHT):
@@ -73,6 +78,13 @@ def get_click_pos(pos, rows, HEIGHT):
     row = y // gap
     col = x // gap
     return row, col
+
+def button_selector(clicked_button, buttons):
+    for button in buttons:
+        if button == clicked_button:
+            button.is_selected(True)
+        else:
+            button.is_selected(False)
 
 def visualizer(win, HEIGHT):
     ROWS = 50
@@ -86,18 +98,35 @@ def visualizer(win, HEIGHT):
     run = True
     started = False
 
-    astar_button = Button(750, 100, image=astar_img)
-    dfs_button = Button(750, 150, image=dfs_img)
-    bfs_button = Button(750, 200, image=bfs_img)
-    dijkstra_button = Button(750, 250, image=dijkstra_img)
-    # astar_button = Button(750, 100, width=100, height=30, color=CADETBLUE)
+    astar_button = Button(725, 100, image=astar_img)
     buttons.append(astar_button)
+    dfs_button = Button(725, 150, image=dfs_img)
     buttons.append(dfs_button)
+    bfs_button = Button(725, 200, image=bfs_img)
     buttons.append(bfs_button)
+    dijkstra_button = Button(725, 250, image=dijkstra_img)
     buttons.append(dijkstra_button)
+    generate_button = Button(790, 50, 75, color=GREY)
+    buttons.append(generate_button)
+
+    pygame.init()
+    base_font = pygame.font.Font(None, 30)
+    user_text = str(ROWS)
+    text_active = False
+    input_rect = pygame.Rect(725, 50, 50, 30)
+    numbers = [pygame.K_0,
+               pygame.K_1,
+               pygame.K_2,
+               pygame.K_3,
+               pygame.K_4,
+               pygame.K_5,
+               pygame.K_6,
+               pygame.K_7,
+               pygame.K_8,
+               pygame.K_9]
 
     while run:
-        draw(win, grid, ROWS, HEIGHT, buttons)
+        draw(win, grid, ROWS, HEIGHT, buttons, input_rect, user_text, base_font)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -107,15 +136,25 @@ def visualizer(win, HEIGHT):
 
             if pygame.mouse.get_pressed()[0]: # Left
                 pos = pygame.mouse.get_pos()
+                text_active = False
 
                 if astar_button.is_clicked(pos):
                     algorithm = AStarAlgorithm
+                    button_selector(astar_button, buttons)
                 elif dfs_button.is_clicked(pos):
                     algorithm = DFSAlgorithm
+                    button_selector(dfs_button, buttons)
                 elif bfs_button.is_clicked(pos):
                     algorithm = BFSAlgorithm
+                    button_selector(bfs_button, buttons)
                 elif dijkstra_button.is_clicked(pos):
                     algorithm = DijkstraAlgorithm
+                    button_selector(dijkstra_button, buttons)
+                elif generate_button.is_clicked(pos):
+                    ROWS = int(user_text)
+                elif input_rect.collidepoint(pos):
+                    # if len(user_text) < 4: 
+                    text_active = True
                 else:
                     row, col = get_click_pos(pos, ROWS, HEIGHT)
                     if row != 0 and col != 0 and row != ROWS - 1 and col != ROWS - 1 and row < ROWS and col < ROWS:
@@ -132,6 +171,7 @@ def visualizer(win, HEIGHT):
                             spot.make_barrier()
 
             elif pygame.mouse.get_pressed()[2]: # Right
+                text_active = False
                 pos = pygame.mouse.get_pos()
                 row, col = get_click_pos(pos, ROWS, HEIGHT)
                 if row != 0 and col != 0 and row != ROWS - 1 and col != ROWS - 1 and row < ROWS and col < ROWS:
@@ -149,14 +189,27 @@ def visualizer(win, HEIGHT):
                         for spot in row:
                             spot.update_neighbors(grid)
 
-                    algorithm(lambda: draw(win, grid, ROWS, HEIGHT, buttons), construct_path, grid, start, end)
+                    algorithm(lambda: draw(win, grid, ROWS, HEIGHT, buttons, input_rect, user_text, base_font), construct_path, grid, start, end)
                     started = False
                 
                 if event.key == pygame.K_c:
                     start = None
                     end = None
-                    algorithm = None
                     grid = make_grid(ROWS, HEIGHT)
+
+                if text_active:
+                    if event.key == pygame.K_BACKSPACE:
+                        user_text = user_text[:-1]
+                    elif event.key in numbers:
+                        user_text += event.unicode
+                        print(int(user_text) == 4)
+                        if int(user_text) < 2 and int(user_text) > 100:
+                            text_active = False
+                
+                if user_text == '' or int(user_text) < 2:
+                    user_text = str(2)
+                if int(user_text) > 100:
+                    user_text = str(100)
 
         pygame.display.update()
             

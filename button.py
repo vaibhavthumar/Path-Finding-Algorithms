@@ -11,12 +11,26 @@ class Button():
             self.color = color
 
         self.rect.topleft = (x, y)
+        self.selection = self.rect.copy()
+        self.selection.inflate_ip(10, 10)
+        self.selected = False
+        self.clicked = False
 
     def draw(self, screen):
         if self.image:
             screen.blit(self.image, (self.rect.x, self.rect.y))
         else:
             pygame.draw.rect(screen, self.color, self.rect)
+        
+        if self.selected:
+            points = [(self.selection.x, self.selection.y),
+                      (self.selection.x + self.selection.width, self.selection.y),
+                      (self.selection.x + self.selection.width, self.selection.y + self.selection.height),
+                      (self.selection.x, self.selection.y + self.selection.height)]
+            pygame.draw.lines(screen, pygame.Color('cadetblue'), True, points, width=2)
 
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
+
+    def is_selected(self, selected):
+        self.selected = selected
