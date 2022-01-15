@@ -3,6 +3,7 @@ from Spot import Spot
 from AStar import AStarAlgorithm
 from DFS import DFSAlgorithm
 from BFS import BFSAlgorithm
+from Dijkstra import DijkstraAlgorithm
 from button import Button
 
 HEIGHT = 700
@@ -24,6 +25,8 @@ SLATEGRAY1 = pygame.Color('slategray1')
 
 astar_img = pygame.image.load('Images/Astar.jpg').convert_alpha()
 dfs_img = pygame.image.load('Images/DFS.jpg').convert_alpha()
+bfs_img = pygame.image.load('Images/BFS.jpg').convert_alpha()
+dijkstra_img = pygame.image.load('Images/Dijkstra.jpg').convert_alpha()
 
 def construct_path(came_from, current, draw):
     while current in came_from:
@@ -85,11 +88,13 @@ def visualizer(win, HEIGHT):
 
     astar_button = Button(750, 100, image=astar_img)
     dfs_button = Button(750, 150, image=dfs_img)
-    bfs_button = Button(750, 200, image=astar_img)
+    bfs_button = Button(750, 200, image=bfs_img)
+    dijkstra_button = Button(750, 250, image=dijkstra_img)
     # astar_button = Button(750, 100, width=100, height=30, color=CADETBLUE)
     buttons.append(astar_button)
     buttons.append(dfs_button)
     buttons.append(bfs_button)
+    buttons.append(dijkstra_button)
 
     while run:
         draw(win, grid, ROWS, HEIGHT, buttons)
@@ -109,6 +114,8 @@ def visualizer(win, HEIGHT):
                     algorithm = DFSAlgorithm
                 elif bfs_button.is_clicked(pos):
                     algorithm = BFSAlgorithm
+                elif dijkstra_button.is_clicked(pos):
+                    algorithm = DijkstraAlgorithm
                 else:
                     row, col = get_click_pos(pos, ROWS, HEIGHT)
                     if row != 0 and col != 0 and row != ROWS - 1 and col != ROWS - 1 and row < ROWS and col < ROWS:
